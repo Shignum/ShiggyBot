@@ -16,7 +16,7 @@ TOKEN = os.getenv('BOT_TOKEN')
 @bot.event
 async def on_ready():
     print(f'{bot.user} has logged in.')
-    initial_extensions = ['cogs.event','cogs.music']
+    initial_extensions = ['cogs.event','cogs.music','cogs.other']
     for extension in initial_extensions:
         bot.load_extension(extension)
 
