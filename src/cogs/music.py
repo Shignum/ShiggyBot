@@ -44,7 +44,7 @@ class Music(commands.Cog):
 
                     permissions = ctx.author.voice.channel.permissions_for(ctx.me)
                     if not permissions.connect or not permissions.speak:
-                        raise commands.CommandInvokeError('I need the Connect and Speak permission.')
+                        raise commands.CommandInvokeError('I need the connect and speak permission.')
 
                     player.store('channel', ctx.channel.id)
                     await self.connect_to(ctx.guild.id, str(ctx.author.voice.channel.id))
