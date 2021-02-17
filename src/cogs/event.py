@@ -2,11 +2,11 @@ import asyncio
 import json
 import os
 
-import dateutil.parser as dparser
+import dateutil.parser
 from discord import Embed
 from discord import Intents
 from discord.ext import commands
-
+from dateparser.search import search_dates
 intents = Intents.default()
 intents.reactions = True
 
@@ -82,7 +82,7 @@ class Event(commands.Cog):
                         if f'{reaction[0]}' == '1️⃣':
                             await payload.member.send(embed=Embed(description='Enter new date for the event'))
                             response = await self.bot.wait_for('message',check=check,timeout=30)
-                            date_parse = dparser.parse(response.content, fuzzy=True, dayfirst=True)
+                            date_parse = dateutil.parser.parse(response.content, fuzzy=True, dayfirst=True)
                             date = date_parse.strftime("%d.%m.%Y %H:%M")
                             embed=msg.embeds[0]
                             embed.title = data[f"{payload.message_id}"]['text']+' '+date
@@ -118,35 +118,37 @@ class Event(commands.Cog):
 
 
 
-    @commands.command()
+    @commands.command(brief='creates an event, format: text date time',
+                      help="date formats: 01.12.21, 01.12 or 1.12 \ntime format:HH:MM (18:23)")
     async def event(self, ctx, *, content):
-        """creates an event, format: text date HH:MM"""
         if ctx.author.bot:
             return
+        try:
+            date_parse = dateutil.parser.parse(content, fuzzy_with_tokens=True, dayfirst=True)
+            print(type(date_parse))
+            date = date_parse[0].strftime("%d.%m.%Y %H:%M")
+            text = ''.join(date_parse[1])
 
-        date_parse = dparser.parse(content, fuzzy_with_tokens=True, dayfirst=True)
+            embed = Embed(title=text + date)
+            embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+            embed.add_field(name=' 👍\n\n ', value=chr(173), inline=True)
+            embed.add_field(name=chr(173), value=chr(173), inline=True)
+            embed.add_field(name=' 👎\n\n ', value=chr(173), inline=True)
+            embed.set_footer(text='react with 👍 or 👎, 📝 to edit ')
+            msg = await ctx.send(embed=embed)
+            await ctx.message.delete()
+            reactions = ('👍','👎','📝')
+            for i in reactions :
+                await msg.add_reaction(emoji=i)
 
-        date = date_parse[0].strftime("%d.%m.%Y %H:%M")
-        text = ''.join(date_parse[1])
-        embed = Embed(title=text + date)
-        embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-        embed.add_field(name=' 👍\n\n ', value=chr(173), inline=True)
-        embed.add_field(name=chr(173), value=chr(173), inline=True)
-        embed.add_field(name=' 👎\n\n ', value=chr(173), inline=True)
-        embed.set_footer(text='react with 👍 or 👎, 📝 to edit ')
-        msg = await ctx.send(embed=embed)
-        await ctx.message.delete()
-        reactions = ('👍','👎','📝')
-        for i in reactions :
-            await msg.add_reaction(emoji=i)
+            with open(f'{self.path[0]}data/{ctx.message.guild.id}.json', 'r') as f:
+                data = json.load(f)
+                data[msg.id] = {"date": date,"author": str(ctx.author), 'text': text}
 
-        with open(f'{self.path[0]}data/{ctx.message.guild.id}.json', 'r') as f:
-            data = json.load(f)
-            data[msg.id] = {"date": date,"author": str(ctx.author), 'text': text}
-
-        with open(f'{self.path[0]}data/{ctx.message.guild.id}.json', 'w') as f:
-            json.dump(data, f, indent=4)
-
+            with open(f'{self.path[0]}data/{ctx.message.guild.id}.json', 'w') as f:
+                json.dump(data, f, indent=4)
+        except dateutil.parser._parser.ParserError:
+            raise commands.CommandInvokeError('Unsupported date/time format.')
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
         if payload.emoji.name in ('👍','👎','📝'):
