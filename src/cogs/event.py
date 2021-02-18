@@ -57,6 +57,20 @@ class Event(commands.Cog):
                     react_users = chr(173)+'\n' f"{nl .join(user.name for user in users)}"
 
                     embed = msg.embeds[0]
+                    embed.set_field_at(1, name=embed.fields[1].name, value=react_users, inline=True)
+                    await msg.edit(embed=embed)
+
+                if payload.emoji.name == '❓':
+                    reactions = msg.reactions[1]
+                    users = set()
+                    async for user in reactions.users():
+                        if user == self.bot.user:
+                            continue
+                        users.add(user)
+                    nl = '\n'
+                    react_users = chr(173)+'\n' f"{nl .join(user.name for user in users)}"
+
+                    embed = msg.embeds[0]
                     embed.set_field_at(2, name=embed.fields[2].name, value=react_users, inline=True)
                     await msg.edit(embed=embed)
 
@@ -125,19 +139,18 @@ class Event(commands.Cog):
             return
         try:
             date_parse = dateutil.parser.parse(content, fuzzy_with_tokens=True, dayfirst=True)
-            print(type(date_parse))
             date = date_parse[0].strftime("%d.%m.%Y %H:%M")
             text = ''.join(date_parse[1])
 
             embed = Embed(title=text + date)
             embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
             embed.add_field(name=' 👍\n\n ', value=chr(173), inline=True)
-            embed.add_field(name=chr(173), value=chr(173), inline=True)
             embed.add_field(name=' 👎\n\n ', value=chr(173), inline=True)
-            embed.set_footer(text='react with 👍 or 👎, 📝 to edit ')
+            embed.add_field(name=' ❓\n\n ', value=chr(173), inline=True)
+            embed.set_footer(text='react with 👍, or 👎, 📝 to edit ')
             msg = await ctx.send(embed=embed)
             await ctx.message.delete()
-            reactions = ('👍','👎','📝')
+            reactions = ('👍','👎','❓','📝')
             for i in reactions :
                 await msg.add_reaction(emoji=i)
 
@@ -149,15 +162,16 @@ class Event(commands.Cog):
                 json.dump(data, f, indent=4)
         except dateutil.parser._parser.ParserError:
             raise commands.CommandInvokeError('Unsupported date/time format.')
+
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, payload):
-        if payload.emoji.name in ('👍','👎','📝'):
+        if payload.emoji.name in ('👍','👎','❓','📝'):
 
             await self.msg_edit(payload)
 
     @commands.Cog.listener()
     async def on_raw_reaction_remove(self, payload):
-        if payload.emoji.name in ('👍', '👎'):
+        if payload.emoji.name in ('👍', '👎', '❓'):
             await self.msg_edit(payload)
 
 def setup(bot):
