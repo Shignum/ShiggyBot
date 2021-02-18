@@ -6,7 +6,7 @@ import dateutil.parser
 from discord import Embed
 from discord import Intents
 from discord.ext import commands
-from dateparser.search import search_dates
+
 intents = Intents.default()
 intents.reactions = True
 
@@ -42,7 +42,7 @@ class Event(commands.Cog):
                     react_users =chr(173)+'\n' f"{nl .join(user.name for user in users)}"
 
                     embed = msg.embeds[0]
-                    embed.set_field_at(0, name=embed.fields[0].name, value=react_users, inline=True)
+                    embed.set_field_at(0, name=' 👍\n\n ', value=react_users, inline=True)
                     await msg.edit(embed=embed)
 
 
@@ -57,11 +57,11 @@ class Event(commands.Cog):
                     react_users = chr(173)+'\n' f"{nl .join(user.name for user in users)}"
 
                     embed = msg.embeds[0]
-                    embed.set_field_at(1, name=embed.fields[1].name, value=react_users, inline=True)
+                    embed.set_field_at(1, name=' 👎\n\n ', value=react_users, inline=True)
                     await msg.edit(embed=embed)
 
                 if payload.emoji.name == '❓':
-                    reactions = msg.reactions[1]
+                    reactions = msg.reactions[2]
                     users = set()
                     async for user in reactions.users():
                         if user == self.bot.user:
@@ -71,7 +71,7 @@ class Event(commands.Cog):
                     react_users = chr(173)+'\n' f"{nl .join(user.name for user in users)}"
 
                     embed = msg.embeds[0]
-                    embed.set_field_at(2, name=embed.fields[2].name, value=react_users, inline=True)
+                    embed.set_field_at(2, name=' ❓\n\n ', value=react_users, inline=True)
                     await msg.edit(embed=embed)
 
                 if payload.emoji.name == '📝':
