@@ -2,7 +2,7 @@
 a Discord music bot using lavalink with a few other non music commands
 
 ## Prerequisites
-    - [Lavalink server](https://github.com/Frederikam/Lavalink)
+    - Lavalink server https://github.com/Frederikam/Lavalink
     - Java 13
     - Python 3.5.3 or higher
 
