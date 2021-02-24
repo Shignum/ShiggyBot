@@ -72,6 +72,8 @@ class Music(commands.Cog):
         if self.bot.user in prev.channel.members and len(prev.channel.members) == 1:
             player = self.bot.music.player_manager.get(prev.channel.guild.id)
             player.queue.clear()
+            player.shuffle = False
+            player.repeat = False
             await player.stop()
             await self.connect_to(prev.channel.guild.id, None)
 
@@ -212,6 +214,8 @@ class Music(commands.Cog):
         """Stops the music, clears the queue and leaves."""
         player = self.bot.music.player_manager.get(ctx.guild.id)
         player.queue.clear()
+        player.shuffle = False
+        player.repeat = False
         await player.stop()
         await self.connect_to(ctx.guild.id, None)
 
