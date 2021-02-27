@@ -147,7 +147,7 @@ class Event(commands.Cog):
             embed.add_field(name=' 👍\n\n ', value=chr(173), inline=True)
             embed.add_field(name=' 👎\n\n ', value=chr(173), inline=True)
             embed.add_field(name=' ❓\n\n ', value=chr(173), inline=True)
-            embed.set_footer(text='react with 👍, or 👎, 📝 to edit ')
+            embed.set_footer(text='react with 👍, 👎 or ❓, 📝 to edit ')
             msg = await ctx.send(embed=embed)
             await ctx.message.delete()
             reactions = ('👍','👎','❓','📝')
