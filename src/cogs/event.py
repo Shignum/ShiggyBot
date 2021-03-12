@@ -22,6 +22,39 @@ class Event(commands.Cog):
                 data = {}
                 json.dump(data, f, indent=4)
 
+    async def embed_edit(self,msg,):
+        users0 = set()
+        users1 = set()
+        users2 = set()
+        reactions = msg.reactions[0]
+        async for user in reactions.users():
+            if user == self.bot.user:
+                continue
+            users0.add(user)
+        nl = '\n'
+        react_users0 = chr(173) + '\n' f"{nl.join(user.name for user in users0)}"
+
+        reactions = msg.reactions[1]
+        async for user in reactions.users():
+            if user == self.bot.user:
+                continue
+            users1.add(user)
+        nl = '\n'
+        react_users1 = chr(173) + '\n' f"{nl.join(user.name for user in users1)}"
+
+        reactions = msg.reactions[2]
+        async for user in reactions.users():
+            if user == self.bot.user:
+                continue
+            users2.add(user)
+        nl = '\n'
+        react_users2 = chr(173) + '\n' f"{nl.join(user.name for user in users2)}"
+        embed = msg.embeds[0]
+        embed.set_field_at(0, name=' 👍\n\n ', value=react_users0, inline=True)
+        embed.set_field_at(1, name=' 👎\n\n ', value=react_users1, inline=True)
+        embed.set_field_at(2, name=' ❓\n\n ', value=react_users2, inline=True)
+        await msg.edit(embed=embed)
+
     async def msg_edit(self, payload):
         if payload.user_id == self.bot.user.id:
             return
@@ -32,47 +65,29 @@ class Event(commands.Cog):
                 msg = await channel.fetch_message(payload.message_id)
 
                 if payload.emoji.name == "👍":
-                    reactions = msg.reactions[0]
-                    users = set()
-                    async for user in reactions.users():
-                        if user == self.bot.user:
-                            continue
-                        users.add(user)
-                    nl = '\n'
-                    react_users =chr(173)+'\n' f"{nl .join(user.name for user in users)}"
-
-                    embed = msg.embeds[0]
-                    embed.set_field_at(0, name=' 👍\n\n ', value=react_users, inline=True)
-                    await msg.edit(embed=embed)
+                    for i in ('👎','❓'):
+                        try:
+                            await msg.remove_reaction(i, payload.member)
+                        except Exception:
+                            pass
+                    await self.embed_edit(msg)
 
 
                 if payload.emoji.name == '👎':
-                    reactions = msg.reactions[1]
-                    users = set()
-                    async for user in reactions.users():
-                        if user == self.bot.user:
-                            continue
-                        users.add(user)
-                    nl = '\n'
-                    react_users = chr(173)+'\n' f"{nl .join(user.name for user in users)}"
-
-                    embed = msg.embeds[0]
-                    embed.set_field_at(1, name=' 👎\n\n ', value=react_users, inline=True)
-                    await msg.edit(embed=embed)
+                    for i in ('👍','❓'):
+                        try:
+                            await msg.remove_reaction(i, payload.member)
+                        except Exception:
+                            pass
+                    await self.embed_edit(msg)
 
                 if payload.emoji.name == '❓':
-                    reactions = msg.reactions[2]
-                    users = set()
-                    async for user in reactions.users():
-                        if user == self.bot.user:
-                            continue
-                        users.add(user)
-                    nl = '\n'
-                    react_users = chr(173)+'\n' f"{nl .join(user.name for user in users)}"
-
-                    embed = msg.embeds[0]
-                    embed.set_field_at(2, name=' ❓\n\n ', value=react_users, inline=True)
-                    await msg.edit(embed=embed)
+                    for i in ('👍','👎'):
+                        try:
+                            await msg.remove_reaction(i, payload.member)
+                        except Exception:
+                            pass
+                    await self.embed_edit(msg)
 
                 if payload.emoji.name == '📝':
                     if str(payload.member) != data[f"{payload.message_id}"]['author']:
@@ -95,7 +110,7 @@ class Event(commands.Cog):
                         reaction = await self.bot.wait_for('reaction_add',timeout=30)
                         if f'{reaction[0]}' == '1️⃣':
                             await payload.member.send(embed=Embed(description='Enter new date for the event'))
-                            response = await self.bot.wait_for('message',check=check,timeout=30)
+                            response = await self.bot.wait_for('message',check=check,timeout=60)
                             date_parse = dateutil.parser.parse(response.content, fuzzy=True, dayfirst=True)
                             date = date_parse.strftime("%d.%m.%Y %H:%M")
                             embed=msg.embeds[0]
@@ -109,7 +124,7 @@ class Event(commands.Cog):
                         if f'{reaction[0]}' == '2️⃣':
                             await payload.member.send(embed=Embed(description='Enter new name for the event'))
 
-                            response = await self.bot.wait_for('message',check=check,timeout=30)
+                            response = await self.bot.wait_for('message',check=check,timeout=60)
                             embed=msg.embeds[0]
                             embed.title = response.content+' '+data[f"{payload.message_id}"]['date']
                             await msg.edit(embed=embed)
