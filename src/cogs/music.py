@@ -1,7 +1,7 @@
 import asyncio
 import math
 import re
-
+import random
 import lavalink
 from discord import Embed
 from discord import Intents
@@ -51,6 +51,10 @@ class Music(commands.Cog):
                 else:
                     if int(player.channel_id) != int(ctx.author.voice.channel.id):
                         raise commands.CommandInvokeError('You need to be in my voicechannel.')
+                    should_be_playing = ctx.command.name in ('pause','skip','nowplaying')
+                    if should_be_playing and not player.is_playing:
+                        raise commands.CommandInvokeError('Nothing is playing.')
+
             else:
                 player = self.bot.music.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
                 await player.set_volume(20)
@@ -237,8 +241,11 @@ class Music(commands.Cog):
     async def resume(self, ctx):
         """unpause the music."""
         player = self.bot.music.player_manager.get(ctx.guild.id)
-        await player.set_pause(False)
-        await ctx.send(embed = Embed(title ='Music playing'))
+        if player.pause:
+            await player.set_pause(False)
+            await ctx.send(embed = Embed(title ='Music playing'))
+        else:
+            await ctx.send(embed = Embed(title ='Not paused'))
 
     @commands.command()
     async def skip(self, ctx):
@@ -249,14 +256,13 @@ class Music(commands.Cog):
 
     @commands.command()
     async def shuffle(self, ctx):
-        """toggles shuffle on/off. (".queue" wrong if on)"""
+        """shuffles queue """
         player = self.bot.music.player_manager.get(ctx.guild.id)
-        if not player.shuffle:
-            player.shuffle = True
-            await ctx.send(embed = Embed(title ='Songs are now playing randomly.'))
-        else:
-            player.shuffle = False
-            await ctx.send(embed = Embed(title ='Songs are no longer playing randomly.'))
+        if not player.queue:
+            raise commands.CommandInvokeError('Queue empty.')
+
+        random.shuffle(player.queue)
+        await ctx.send(embed = Embed(title ='Queue shuffled.'))
 
     @commands.command(aliases=['loop'])
     async def repeat(self, ctx):
@@ -279,29 +285,23 @@ class Music(commands.Cog):
             await player.set_volume(query)
             await ctx.send(embed = Embed(title =f'volume set to {player.volume}'))
         else:
-            ctx.send(embed = Embed(title ='value to high.'))
+            raise commands.CommandInvokeError('value to high.')
 
     @commands.command(aliases=['np'])
     async def nowplaying(self, ctx):
         """(short:'np') Shows the song playing."""
         player = self.bot.music.player_manager.get(ctx.guild.id)
-        if player.is_playing:
-            current = player.current.title
-            url = f'https://youtube.com/watch?v={player.current.identifier}'
-            embed = Embed(title='Now playing', description=f'[{current}]({url})')
-            await ctx.send(embed=embed)
-        else:
-            embed = Embed(title=f'Nothing is playing')
-            await ctx.send(embed=embed)
+        embed = Embed(title='Now playing', description=f'[{player.current.title}]({player.current.uri})')
+        await ctx.send(embed=embed)
 
     @commands.command()
     async def queue(self, ctx, page: int = 1):
         """Shows  the next 10 songs in the queue."""
         player = self.bot.music.player_manager.get(ctx.guild.id)
-
+        if not player.queue:
+            raise commands.CommandInvokeError('Nothing in queue')
         items_per_page = 10
         pages = math.ceil(len(player.queue) / items_per_page)
-
         start = (page - 1) * items_per_page
         end = start + items_per_page
 
@@ -310,10 +310,9 @@ class Music(commands.Cog):
             queue_list += f'`{index + 1}.` [**{track.title}**]({track.uri})\n'
 
         if player.is_playing:
-            current = player.current.title
-            url = f'https://youtube.com/watch?v={player.current.identifier}'
             embed = Embed(
-                description=f'**{len(player.queue)} tracks**\n\n Now playing: [{current}]({url})\n\n{queue_list}')
+                description=f'**{len(player.queue)} tracks**\n\n '
+                            f'Now playing: [{player.current.title}]({player.current.uri})\n\n{queue_list}')
         else:
             embed = Embed(description=f'**{len(player.queue)} tracks**\n\n{queue_list}')
         embed.set_footer(text=f'Viewing page {page}/{pages}')
