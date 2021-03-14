@@ -29,7 +29,7 @@ async def on_command_error(ctx, error):
         await ctx.send(embed=Embed(title='Command used wrong.'))
         return
     if isinstance(error, commands.CommandInvokeError):
-        await ctx.send(embed=Embed(title=error.original))
+        await ctx.send(embed=Embed(title=f'{error.original}'))
         return
     if isinstance(error, commands.MissingPermissions):
         await ctx.send(embed=Embed(title="You don't have the permission to use this command."))
