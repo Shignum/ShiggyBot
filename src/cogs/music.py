@@ -1,8 +1,10 @@
 import asyncio
 import math
-import re
 import random
+import re
+
 import lavalink
+from datetime import timedelta
 from discord import Embed
 from discord import Intents
 from discord.ext import commands
@@ -291,7 +293,10 @@ class Music(commands.Cog):
     async def nowplaying(self, ctx):
         """(short:'np') Shows the song playing."""
         player = self.bot.music.player_manager.get(ctx.guild.id)
-        embed = Embed(title='Now playing', description=f'[{player.current.title}]({player.current.uri})')
+        duration = str(timedelta(seconds=player.current.duration/1000))
+        now = str(timedelta(seconds=player.position/1000)).split('.')[0]
+        embed = Embed(title='Now playing', description=f'[{player.current.title}]({player.current.uri})'
+                                                       f'\n {now} - {duration}')
         await ctx.send(embed=embed)
 
     @commands.command()
