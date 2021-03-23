@@ -17,8 +17,8 @@ class Event(commands.Cog):
         self.path = (os.path.realpath(__file__)).split('src')
 
     async def cog_before_invoke(self, ctx):
-        if not os.path.isfile(f'{self.path[0]}data/{ctx.message.guild.id}.json'):
-            with open(f'{self.path[0]}data/{ctx.message.guild.id}.json', 'w') as f:
+        if not os.path.isfile(f'{self.path[0]}data/event/{ctx.message.guild.id}.json'):
+            with open(f'{self.path[0]}data/event/{ctx.message.guild.id}.json', 'w') as f:
                 data = {}
                 json.dump(data, f, indent=4)
 
@@ -58,7 +58,7 @@ class Event(commands.Cog):
     async def msg_edit(self, payload):
         if payload.user_id == self.bot.user.id:
             return
-        with open(f'{self.path[0]}data/{payload.guild_id}.json', 'r') as f:
+        with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'r') as f:
             data = json.load(f)
             if str(payload.message_id) in data:
                 channel = self.bot.get_channel(payload.channel_id)
@@ -118,7 +118,7 @@ class Event(commands.Cog):
                             await msg.edit(embed=embed)
                             await payload.member.send(embed=Embed(description='event date updated'))
                             data[f"{payload.message_id}"]['date']=date
-                            with open(f'{self.path[0]}data/{payload.guild_id}.json', 'w') as t:
+                            with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'w') as t:
                                 json.dump(data, t, indent=4)
 
                         if f'{reaction[0]}' == '2️⃣':
@@ -130,7 +130,7 @@ class Event(commands.Cog):
                             await msg.edit(embed=embed)
                             await payload.member.send(embed=Embed(description='event name updated'))
                             data[f"{payload.message_id}"]['text'] = response.content
-                            with open(f'{self.path[0]}data/{payload.guild_id}.json', 'w') as t:
+                            with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'w') as t:
                                 json.dump(data, t, indent=4)
                         if f'{reaction[0]}' == '3️⃣':
                             await payload.member.send(embed=Embed(description='did nothing'))
@@ -138,7 +138,7 @@ class Event(commands.Cog):
                         if f'{reaction[0]}' == '❌':
                             await msg.delete()
                             data.pop(f'{payload.message_id}')
-                            with open(f'{self.path[0]}data/{payload.guild_id}.json', 'w') as d:
+                            with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'w') as d:
                                 json.dump(data, d, indent=4)
                             await payload.member.send(embed=Embed(description='event deleted'))
                     except asyncio.TimeoutError:
@@ -164,17 +164,18 @@ class Event(commands.Cog):
             embed.add_field(name=' ❓\n\n ', value=chr(173), inline=True)
             embed.set_footer(text='react with 👍, 👎 or ❓, 📝 to edit ')
             msg = await ctx.send(embed=embed)
-            await ctx.message.delete()
             reactions = ('👍','👎','❓','📝')
             for i in reactions :
                 await msg.add_reaction(emoji=i)
 
-            with open(f'{self.path[0]}data/{ctx.message.guild.id}.json', 'r') as f:
+            with open(f'{self.path[0]}data/event/{ctx.message.guild.id}.json', 'r') as f:
                 data = json.load(f)
-                data[msg.id] = {"date": date,"author": str(ctx.author), 'text': text}
+                data[msg.id] = {"date": date,"author": str(ctx.author), "text": text}
 
-            with open(f'{self.path[0]}data/{ctx.message.guild.id}.json', 'w') as f:
+            with open(f'{self.path[0]}data/event/{ctx.message.guild.id}.json', 'w') as f:
                 json.dump(data, f, indent=4)
+            await ctx.message.delete()
+
         except dateutil.parser._parser.ParserError:
             raise commands.CommandInvokeError('Unsupported date/time format.')
 
