@@ -39,7 +39,7 @@ class Music(commands.Cog):
         else:
             player = ctx.bot.music.player_manager.get(ctx.guild.id)
             if player is not None:
-                should_connect = ctx.command.name in ('play', 'search', 'join', 'playtop',)
+                should_connect = ctx.command.name in ('play', 'search', 'join', 'playtop')
                 if not player.is_connected:
                     if not should_connect:
                         raise commands.CommandInvokeError('Not connected.')
@@ -236,14 +236,21 @@ class Music(commands.Cog):
     async def pause(self, ctx):
         """pause the music."""
         player = self.bot.music.player_manager.get(ctx.guild.id)
-        await player.set_pause(True)
-        await ctx.send(embed = Embed(title ='Music paused.'))
+        if not player.is_playing:
+            ctx.send(embed=Embed(title='Nothing is playing.'))
+        elif player.paused:
+            ctx.send(embed=Embed(title='Music is already paused.'))
+        else:
+            await player.set_pause(True)
+            await ctx.send(embed = Embed(title ='Music paused.'))
 
     @commands.command()
     async def resume(self, ctx):
         """unpause the music."""
         player = self.bot.music.player_manager.get(ctx.guild.id)
-        if player.pause:
+        if not player.is_playing:
+            await player.play()
+        elif player.paused:
             await player.set_pause(False)
             await ctx.send(embed = Embed(title ='Music playing'))
         else:
@@ -305,8 +312,15 @@ class Music(commands.Cog):
         player = self.bot.music.player_manager.get(ctx.guild.id)
         if not player.queue:
             raise commands.CommandInvokeError('Nothing in queue')
+
         items_per_page = 10
         pages = math.ceil(len(player.queue) / items_per_page)
+
+        if page <= 0:
+            page = int(1)
+        elif page > pages:
+            page = int(pages)
+
         start = (page - 1) * items_per_page
         end = start + items_per_page
 
