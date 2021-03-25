@@ -73,7 +73,7 @@ class Event(commands.Cog):
                     await self.embed_edit(msg)
 
 
-                if payload.emoji.name == '👎':
+                elif payload.emoji.name == '👎':
                     for i in ('👍','❓'):
                         try:
                             await msg.remove_reaction(i, payload.member)
@@ -81,7 +81,7 @@ class Event(commands.Cog):
                             pass
                     await self.embed_edit(msg)
 
-                if payload.emoji.name == '❓':
+                elif payload.emoji.name == '❓':
                     for i in ('👍','👎'):
                         try:
                             await msg.remove_reaction(i, payload.member)
@@ -89,7 +89,7 @@ class Event(commands.Cog):
                             pass
                     await self.embed_edit(msg)
 
-                if payload.emoji.name == '📝':
+                elif payload.emoji.name == '📝':
                     if str(payload.member) != data[f"{payload.message_id}"]['author']:
                         await msg.remove_reaction('📝',payload.member)
                         return
@@ -121,7 +121,7 @@ class Event(commands.Cog):
                             with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'w') as t:
                                 json.dump(data, t, indent=4)
 
-                        if f'{reaction[0]}' == '2️⃣':
+                        elif f'{reaction[0]}' == '2️⃣':
                             await payload.member.send(embed=Embed(description='Enter new name for the event'))
 
                             response = await self.bot.wait_for('message',check=check,timeout=60)
@@ -132,10 +132,10 @@ class Event(commands.Cog):
                             data[f"{payload.message_id}"]['text'] = response.content
                             with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'w') as t:
                                 json.dump(data, t, indent=4)
-                        if f'{reaction[0]}' == '3️⃣':
+                        elif f'{reaction[0]}' == '3️⃣':
                             await payload.member.send(embed=Embed(description='did nothing'))
                             return
-                        if f'{reaction[0]}' == '❌':
+                        elif f'{reaction[0]}' == '❌':
                             await msg.delete()
                             data.pop(f'{payload.message_id}')
                             with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'w') as d:
