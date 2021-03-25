@@ -16,7 +16,7 @@ TOKEN = os.getenv('BOT_TOKEN')
 @bot.event
 async def on_ready():
     print(f'{bot.user} has logged in.')
-    initial_extensions = ['cogs.event','cogs.music','cogs.other']
+    initial_extensions = ['cogs.event','cogs.music','cogs.other','cogs.playlist']
     for extension in initial_extensions:
         bot.load_extension(extension)
 
@@ -25,13 +25,13 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         await ctx.send(embed=Embed(title='Command not found.'))
         return
-    if isinstance(error, commands.MissingRequiredArgument):
+    elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send(embed=Embed(title='Command used wrong.'))
         return
-    if isinstance(error, commands.CommandInvokeError):
+    elif isinstance(error, commands.CommandInvokeError):
         await ctx.send(embed=Embed(title=f'{error.original}'))
         return
-    if isinstance(error, commands.MissingPermissions):
+    elif isinstance(error, commands.MissingPermissions):
         await ctx.send(embed=Embed(title="You don't have the permission to use this command."))
         return
 
