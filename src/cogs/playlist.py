@@ -59,6 +59,9 @@ class Playlist(commands.Cog):
 
     @commands.command(aliases= ['playpl', 'ppl'])
     async def playplaylist(self,ctx,*,query):
+        if not ctx.author.voice:
+            await ctx.send(embed=Embed(title='You need to be in a voicechannel.'))
+            return
         with open(f'{self.path[0]}data/playlists/{ctx.message.guild.id}.json', 'r') as f:
             data = json.load(f)
         if query in data:
