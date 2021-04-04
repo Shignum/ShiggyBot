@@ -250,11 +250,12 @@ class Music(commands.Cog):
         player = self.bot.music.player_manager.get(ctx.guild.id)
         if not player.is_playing:
             await player.play()
+            await ctx.send(embed=Embed(title='Music playing.'))
         elif player.paused:
             await player.set_pause(False)
-            await ctx.send(embed = Embed(title ='Music playing'))
+            await ctx.send(embed = Embed(title ='Music playing.'))
         else:
-            await ctx.send(embed = Embed(title ='Not paused'))
+            await ctx.send(embed = Embed(title ='Not paused.'))
 
     @commands.command()
     async def skip(self, ctx):
