@@ -1,4 +1,4 @@
 python-dateutil
 python-dotenv
-discord.py
+py-cord
 lavalink
