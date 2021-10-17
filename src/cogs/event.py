@@ -10,7 +10,6 @@ from discord.ext import commands
 intents = Intents.default()
 intents.reactions = True
 
-
 class Event(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -104,13 +103,19 @@ class Event(commands.Cog):
                     for i in reactions:
                         await send_msg.add_reaction(emoji=i)
                     await msg.remove_reaction('📝',payload.member)
+
                     try:
-                        def check(m):
-                            return m.channel == payload.member.dm_channel
-                        reaction = await self.bot.wait_for('reaction_add',timeout=30)
-                        if f'{reaction[0]}' == '1️⃣':
+                        def check_reaction(m):
+                            return m.channel_id == send_msg.channel.id
+
+                        def check_message(m):
+                            return m.channel.id == send_msg.channel.id
+
+                        reaction = await self.bot.wait_for('raw_reaction_add',timeout=30,check=check_reaction)
+
+                        if reaction.emoji.name == '1️⃣':
                             await payload.member.send(embed=Embed(description='Enter new date for the event'))
-                            response = await self.bot.wait_for('message',check=check,timeout=60)
+                            response = await self.bot.wait_for('message',check=check_message,timeout=60)
                             date_parse = dateutil.parser.parse(response.content, fuzzy=True, dayfirst=True)
                             date = date_parse.strftime("%d.%m.%Y %H:%M")
                             embed=msg.embeds[0]
@@ -121,10 +126,10 @@ class Event(commands.Cog):
                             with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'w') as t:
                                 json.dump(data, t, indent=4)
 
-                        elif f'{reaction[0]}' == '2️⃣':
+                        elif reaction.emoji.name == '2️⃣':
                             await payload.member.send(embed=Embed(description='Enter new name for the event'))
 
-                            response = await self.bot.wait_for('message',check=check,timeout=60)
+                            response = await self.bot.wait_for('message',check=check_message,timeout=60)
                             embed=msg.embeds[0]
                             embed.title = response.content+' '+data[f"{payload.message_id}"]['date']
                             await msg.edit(embed=embed)
@@ -132,10 +137,10 @@ class Event(commands.Cog):
                             data[f"{payload.message_id}"]['text'] = response.content
                             with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'w') as t:
                                 json.dump(data, t, indent=4)
-                        elif f'{reaction[0]}' == '3️⃣':
+                        elif reaction.emoji.name == '3️⃣':
                             await payload.member.send(embed=Embed(description='did nothing'))
                             return
-                        elif f'{reaction[0]}' == '❌':
+                        elif reaction.emoji.name == '❌':
                             await msg.delete()
                             data.pop(f'{payload.message_id}')
                             with open(f'{self.path[0]}data/event/{payload.guild_id}.json', 'w') as d:
@@ -143,8 +148,6 @@ class Event(commands.Cog):
                             await payload.member.send(embed=Embed(description='event deleted'))
                     except asyncio.TimeoutError:
                         await payload.member.send(embed=Embed(description='timed out'))
-
-
 
 
     @commands.command(brief='creates an event, format: text date time',
