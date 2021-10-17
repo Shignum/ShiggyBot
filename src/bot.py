@@ -7,11 +7,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 intents = Intents.default()
-intents.typing = False
-intents.presences = False
+
 bot = commands.Bot(command_prefix=os.getenv('PREFIX'))
 TOKEN = os.getenv('BOT_TOKEN')
-
 
 @bot.event
 async def on_ready():
@@ -26,7 +24,7 @@ async def on_command_error(ctx, error):
         await ctx.send(embed=Embed(title='Command not found.'))
         return
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(embed=Embed(title='Command used wrong.'))
+        await ctx.send(embed=Embed(title='Command needs an Argument.'))
         return
     elif isinstance(error, commands.CommandInvokeError):
         await ctx.send(embed=Embed(title=f'{error.original}'))
