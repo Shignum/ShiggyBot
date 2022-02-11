@@ -2,7 +2,7 @@ from discord.ext import commands
 from discord import Embed
 import asyncio
 import json
-import lavalink
+import pycord.wavelink as wavelink
 import re
 from os import path
 

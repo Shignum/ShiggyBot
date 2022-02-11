@@ -2,11 +2,10 @@ import asyncio
 import math
 import random
 import re
-
-import lavalink
 from datetime import timedelta
-from discord import Embed
-from discord import Intents
+
+import pycord.wavelink as wavelink
+from discord import Embed, Intents
 from discord.ext import commands
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
@@ -17,12 +16,22 @@ intents.voice_states = True
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        if not hasattr(bot, 'music'):
-            self.bot.music = lavalink.Client(self.bot.user.id)
-            self.bot.music.add_node('localhost', 7000, 'Shiggybot', 'eu', 'music-node')
-            self.bot.add_listener(self.bot.music.voice_update_handler, 'on_socket_response')
-
+        bot.loop.create_task(self.connect_nodes())
         self.bot.music.add_event_hook(self.track_hook)
+
+    async def connect_nodes(self):
+        """Connect to our Lavalink nodes."""
+        await self.bot.wait_until_ready()
+        await wavelink.NodePool.create_node(
+            bot=self.bot,
+            host='localhost',
+            port=7000,
+            password='Shiggybot',)
+
+    @commands.Cog.listener()
+    async def on_wavelink_node_ready(self, node: wavelink.Node):
+        """Event fired when a node has finished connecting."""
+        print(f'Node: <{node.identifier}> is ready!')
 
     def cog_unload(self):
         self.bot.music._event_hooks.clear()
@@ -37,7 +46,7 @@ class Music(commands.Cog):
         if ctx.author.voice is None:
             raise commands.CommandInvokeError('You need to be in a voicechannel.')
         else:
-            player = ctx.bot.music.player_manager.get(ctx.guild.id)
+            player = ctx.voice_client
             if player is not None:
                 should_connect = ctx.command.name in ('play', 'search', 'join', 'playtop')
                 if not player.is_connected:
@@ -56,9 +65,9 @@ class Music(commands.Cog):
                     should_be_playing = ctx.command.name in ('pause','skip','nowplaying')
                     if should_be_playing and not player.is_playing:
                         raise commands.CommandInvokeError('Nothing is playing.')
-
+# in work
             else:
-                player = self.bot.music.player_manager.create(ctx.guild.id, endpoint=str(ctx.guild.region))
+                vc: wavelink.Player = await ctx.author.voice.channel.connect(cls=wavelink.Player)
                 await player.set_volume(20)
                 await self.ensure_voice(ctx)
 
@@ -71,17 +80,17 @@ class Music(commands.Cog):
         ws = self.bot._connection._get_websocket(guild_id)
         await ws.voice_state(str(guild_id), channel_id)
 
-    @commands.Cog.listener()
-    async def on_voice_state_update(self, member, prev, cur):
-        if prev.channel is None:
-            return
-        if self.bot.user in prev.channel.members and len(prev.channel.members) == 1:
-            player = self.bot.music.player_manager.get(prev.channel.guild.id)
-            player.queue.clear()
-            player.shuffle = False
-            player.repeat = False
-            await player.stop()
-            await self.connect_to(prev.channel.guild.id, None)
+    # @commands.Cog.listener()
+    # async def on_voice_state_update(self, member, prev, cur):
+    #     if prev.channel is None:
+    #         return
+    #     if self.bot.user in prev.channel.members and len(prev.channel.members) == 1:
+    #         player = self.bot.music.player_manager.get(prev.channel.guild.id)
+    #         player.queue.clear()
+    #         player.shuffle = False
+    #         player.repeat = False
+    #         await player.stop()
+    #         await self.connect_to(prev.channel.guild.id, None)
 
     @commands.command(aliases=['j'])
     async def join(self, ctx):
@@ -124,9 +133,10 @@ class Music(commands.Cog):
             await ctx.send(embed=Embed(title='Timed out.'))
 
     @commands.command(aliases=['p'])
-    async def play(self, ctx, *, query: str):
+    async def play(self, ctx: commands.Context, *, search: wavelink.YouTubeTrack):    
+    # async def play(self, ctx, *, query: str):
         """(short:'p') Plays a song/playlist or searches youtube and plays the first. """
-        player = self.bot.music.player_manager.get(ctx.guild.id)
+        player = ctx.voice_client
         query = query.strip('<>')
 
         if not url_rx.match(query):
