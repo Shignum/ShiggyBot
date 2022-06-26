@@ -8,6 +8,7 @@ class Other(commands.Cog):
     @commands.command(aliases=['cc'])
     @commands.has_permissions(administrator=True)
     async def chatclear(self, ctx, amount=6):
+        print("chatclear")
         await ctx.channel.purge(limit=amount+1)
 
 def setup(bot):

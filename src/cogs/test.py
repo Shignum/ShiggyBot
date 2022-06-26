@@ -8,5 +8,6 @@ class Test(commands.Cog):
     @slash_command()
     async def hello(self, ctx):
         await ctx.respond("Hi, this is a slash command from a cog!")
+        
 def setup(bot):
-    bot.add_cog(test(bot))
+    bot.add_cog(Test(bot))
