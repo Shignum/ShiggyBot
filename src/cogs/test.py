@@ -1,7 +1,7 @@
 from discord.commands import slash_command 
 from discord.ext import commands
 
-class Test(commands.Cog):
+class test(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
