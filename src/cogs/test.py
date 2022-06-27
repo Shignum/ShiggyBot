@@ -10,4 +10,4 @@ class test(commands.Cog):
         await ctx.respond("Hi, this is a slash command from a cog!")
         
 def setup(bot):
-    bot.add_cog(Test(bot))
+    bot.add_cog(test(bot))

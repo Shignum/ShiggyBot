@@ -9,22 +9,27 @@ TOKEN = os.getenv('BOT_TOKEN')
 intents = discord.Intents.default()
 intents.message_content = True
 
-client = discord.Client(intents=intents)
+bot = discord.Client(intents=intents)
 
-@client.event
+@bot.event
 async def on_ready():
-    print(f'Logged on as {client.user}!')
-
-@client.event
+    print(f'Logged on as {bot.user}!')
+    
+    initial_extensions = ['cogs.other', 'cogs.test']
+    #initial_extensions = ['cogs.event','cogs.music','cogs.other','cogs.playlist']
+    for extension in initial_extensions:
+        bot.load_extension(extension)
+        print(f'{extension} has been loaded')
+@bot.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == bot.user:
         return
     if message.content.startswith('$hello'):
         await message.channel.send('Hello!')
         
 
     
-client.run(TOKEN)
+bot.run(TOKEN)
 
 
 
@@ -39,13 +44,8 @@ client.run(TOKEN)
 
 
 # @bot.event
-# async def on_ready():
-#     print(f'{bot.user} has logged in.')
-#     initial_extensions = ['cogs.other', 'cogs.test']
-# #    initial_extensions = ['cogs.event','cogs.music','cogs.other','cogs.playlist']
-#     for extension in initial_extensions:
-#         bot.load_extension(extension)
-#         print(f'{extension} has been loaded')
+#async def on_ready():
+   
 
 # async def on_message(self, message):
 #         print(f'Message from {message.author}: {message.content}')
@@ -66,4 +66,3 @@ client.run(TOKEN)
 #         return
 
 #     raise error
-
