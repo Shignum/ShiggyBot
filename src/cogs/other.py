@@ -1,15 +1,16 @@
 from discord.ext import commands
-import discord
+from discord import slash_command, Option
 
-class Other(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+class other(commands.Cog):
+    def __init__(self,client):
+        self.client = client
 
     @commands.command(aliases=['cc'])
     @commands.has_permissions(administrator=True)
     async def chatclear(self, ctx, amount=6):
-        print("chatclear")
-        await ctx.channel.purge(limit=amount+1)
+        amount=int(amount)
+        await ctx.channel.purge(amount)
+        await ctx.respond(f'deleted {amount} messages')
 
-def setup(bot):
-    bot.add_cog(Other(bot))
+def setup(client):
+    client.add_cog(other(client))
