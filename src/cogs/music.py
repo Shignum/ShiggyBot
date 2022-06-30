@@ -3,15 +3,13 @@ import math
 import random
 import re
 from datetime import timedelta
+from discord.commands import slash_command 
 
-import pycord.wavelink as wavelink
-from discord import Embed, Intents
+import wavelink
+from discord import Embed
 from discord.ext import commands
 
 url_rx = re.compile(r'https?://(?:www\.)?.+')
-
-intents = Intents.default()
-intents.voice_states = True
 
 class Music(commands.Cog):
     def __init__(self, bot):
@@ -72,7 +70,7 @@ class Music(commands.Cog):
                 await self.ensure_voice(ctx)
 
     async def track_hook(self, event):
-        if isinstance(event, lavalink.events.QueueEndEvent):
+        if isinstance(event, wavelink.events.QueueEndEvent):
             guild_id = int(event.player.guild_id)
             await self.connect_to(guild_id, None)
 
@@ -92,13 +90,11 @@ class Music(commands.Cog):
     #         await player.stop()
     #         await self.connect_to(prev.channel.guild.id, None)
 
-    @commands.command(aliases=['j'])
-    async def join(self, ctx):
-        """Joins the voice channel.(not useful)"""
-
-    @commands.command(aliases=['s'])
+    # @slash_command(name='join', description='says hi')
+    # async def join(self, ctx):
+    #     """Joins the voice channel.(not useful)"""
+    @slash_command(name='search', description="Searches on youtube and let's you choose the song")
     async def search(self, ctx, *, query):
-        """(short:'s')Searches on youtube and let's you choose the song."""
         try:
             player = self.bot.music.player_manager.get(ctx.guild.id)
             query = f'ytsearch:{query}'
