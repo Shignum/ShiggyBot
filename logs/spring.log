@@ -1,0 +1,36 @@
+2022-07-03 11:32:10.482  INFO 6120 --- [main] lavalink.server.Launcher                 : Starting Launcher on DESKTOP-KL3RSC9 with PID 6120 (B:\Discord_bots\ShiggyBot\Lavalink.jar started by Daniel in B:\Discord_bots\ShiggyBot)
+2022-07-03 11:32:10.487  INFO 6120 --- [main] lavalink.server.Launcher                 : No active profile set, falling back to default profiles: default
+2022-07-03 11:32:10.660  WARN 6120 --- [background-preinit] o.s.h.c.j.Jackson2ObjectMapperBuilder    : For Jackson Kotlin classes support please add "com.fasterxml.jackson.module:jackson-module-kotlin" to the classpath
+2022-07-03 11:32:11.790  INFO 6120 --- [main] lavalink.server.Launcher                 : Started Launcher in 1.867 seconds (JVM running for 2.409)
+2022-07-03 11:32:11.792  INFO 6120 --- [main] lavalink.server.Launcher                 : You can safely ignore the big red warning about illegal reflection. See https://github.com/freyacodes/Lavalink/issues/295
+2022-07-03 11:32:11.858  INFO 6120 --- [main] lavalink.server.Launcher                 : 
+
+[32m       .  [31m _                  _ _       _    [32m__ _ _
+[32m      /\\ [31m| | __ ___   ____ _| (_)_ __ | | __[32m\ \ \ \
+[32m     ( ( )[31m| |/ _` \ \ / / _` | | | '_ \| |/ /[32m \ \ \ \
+[32m      \\/ [31m| | (_| |\ V / (_| | | | | | |   < [32m  ) ) ) )
+[32m       '  [31m|_|\__,_| \_/ \__,_|_|_|_| |_|_|\_\[32m / / / /
+[0m    =========================================[32m/_/_/_/[0m
+
+	Version:        608d24ddb2b7b63d5b4aa23151e8dfa924de5392-SNAPSHOT
+	Build:          1347
+	Build time:     26.05.2022 14:29:26 UTC
+	Branch          walkyst-koe-fork
+	Commit:         608d24d
+	Commit time:    27.04.2022 18:20:57 UTC
+	JVM:            13.0.2
+	Lavaplayer      1.3.98-devoxin
+
+2022-07-03 11:32:11.867  INFO 6120 --- [main] lavalink.server.Launcher                 : No active profile set, falling back to default profiles: default
+2022-07-03 11:32:12.571  WARN 6120 --- [main] io.undertow.websockets.jsr               : UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used
+2022-07-03 11:32:12.596  INFO 6120 --- [main] io.undertow.servlet                      : Initializing Spring embedded WebApplicationContext
+2022-07-03 11:32:12.597  INFO 6120 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 726 ms
+2022-07-03 11:32:12.687  WARN 6120 --- [main] l.server.config.SentryConfiguration      : Turning off sentry
+2022-07-03 11:32:13.013  INFO 6120 --- [main] c.s.d.l.tools.GarbageCollectionMonitor   : GC monitoring enabled, reporting results every 2 minutes.
+2022-07-03 11:32:13.211  INFO 6120 --- [main] lavalink.server.config.KoeConfiguration  : OS: Windows 10, Arch: amd64
+2022-07-03 11:32:13.216  WARN 6120 --- [main] lavalink.server.config.KoeConfiguration  : This system and architecture appears to not support native audio sending! GC pauses may cause your bot to stutter during playback.
+2022-07-03 11:32:13.340  INFO 6120 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2022-07-03 11:32:13.470  INFO 6120 --- [main] org.xnio                                 : XNIO version 3.3.8.Final
+2022-07-03 11:32:13.478  INFO 6120 --- [main] org.xnio.nio                             : XNIO NIO Implementation Version 3.3.8.Final
+2022-07-03 11:32:13.525  INFO 6120 --- [main] o.s.b.w.e.u.UndertowServletWebServer     : Undertow started on port(s) 7000 (http) with context path ''
+2022-07-03 11:32:13.526  INFO 6120 --- [main] lavalink.server.Launcher                 : Started Launcher in 1.727 seconds (JVM running for 4.145)
