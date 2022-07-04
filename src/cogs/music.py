@@ -2,8 +2,9 @@ import asyncio
 import math
 import random
 import re
-
+import discord
 import lavalink
+
 from datetime import timedelta
 from discord import Embed
 from discord.ext import commands
@@ -15,7 +16,7 @@ class music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         if not hasattr(bot, 'music'):
-            self.bot.music = lavalink.Client(self.bot.user.id)
+            self.bot.music = lavalink.Client(bot.user.id)
             self.bot.music.add_node('localhost', 7000, 'Shiggybot', 'eu', 'music-node')
             self.bot.add_listener(self.bot.music.voice_update_handler, 'on_socket_response')
 
@@ -86,14 +87,13 @@ class music(commands.Cog):
 
     # @commands.command(aliases=['s'])
     # async def search(self, ctx, *, query):
-    @commands.Cog.listener()
-    async def on_message(self, ctx, message):
-      if message.author == self.bot.user:
-        return
-      if message.content.startswith('!search'):
-        """(short:'s')Searches on youtube and let's you choose the song."""
+
+    @commands.slash_command(name='search', description = "Searches on youtube and let's you choose the song.")
+    async def search(self, ctx, query):
+        
         try:
             player = self.bot.music.player_manager.get(ctx.guild.id)
+            print(player)
             query = f'ytsearch:{query}'
             results = await player.node.get_tracks(query)
             tracks = results['tracks'][0:10]
@@ -106,7 +106,7 @@ class music(commands.Cog):
             embed.description = query_result
             embed.title = 'Please choose the number of the song you want to play.'
 
-            await ctx.channel.send(embed=embed)
+            await self.ctx.channel.send(embed=embed)
 
             def check(m):
                 return m.author.id == ctx.author.id
